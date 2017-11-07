@@ -1,4 +1,4 @@
 
 # About the project
 
-*Write a short description about the course and add a link to your github repository here. This is an R markdown (.Rmd) file so you can use R markdown syntax. See the 'Useful links' page in the mooc area (chapter 1) for instructions.*
+In this project I will be practising how to work with **R**.   It is part of the Open Data Science Course. [Check out my github repository.](https://github.com/evaroth/IODS-project)
