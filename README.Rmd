@@ -1,4 +1,4 @@
-#Introduction to Open Data Science  
+# Introduction to Open Data Science  
 *This is a very interesting and challenging course.*  
 [Here you can find my course diary.](https://evaroth.github.io/IODS-project/)
 
