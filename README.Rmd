@@ -2,5 +2,5 @@
 *This is a very interesting and challenging course.*
 [Here you can find my GitHub repository](https://evaroth.github.io/IODS-project/)
 
-Unfortunately something went wrong with the index-rmd file. It cannot be opened in R anymore. For now it can be seen only in the html version.
+Unfortunately something went wrong with the index-rmd file. It cannot be opened in R anymore and I also could not push the index html file to my github repository.
 
