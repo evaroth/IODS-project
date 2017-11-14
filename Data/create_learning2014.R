@@ -48,6 +48,12 @@ newdataset <- select(learning2014, one_of(keep_columns))
 str(newdataset)
 
 # Setting the IODS project folder to the working directory
-setwd(C:/Users/eva-mariaroth/Documents/GitHub/IODS-project)
+setwd("/Users/eva-mariaroth/Documents/GitHub/IODS-project")
 
+# Saving the analysis dataset to data folder:
+write.csv(newdataset, file = "learning2014.csv", row.names = FALSE)
 
+# Reading the data again
+learning2014 <- read.csv("learning2014.csv")
+str(learning2014)
+head(learning2014)
