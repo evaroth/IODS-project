@@ -1,7 +1,74 @@
-# Insert chapter 2 title here
+# RStudio Exercise 2 - Regression and model validation
 
-*Describe the work you have done this week and summarize your learning.*
+*In this exercise I have been working on a data set about students learning motivation. In preparation I transformed the raw data into a data set suitable for analysis. That process is called data wrangling.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+
+## 2.1.Reading students2014 data into R and exploring its dimensions and structure.
+
+```{r}
+learning2014 <- read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/learning2014.csv", header = TRUE)
+```
+```{r dim}
+dim(learning2014)
+```
+
+```{r str}
+str(learning2014)
+```
+```{r head}
+head(learning2014)
+```
+The dataset consists of 166 observations of 7 variables (columns) related to the learning behaviour of students. The variables are:   
+**Gender** : character values, M, F, for male and female  
+**Age** : age of the students, numeric data type  
+**Attitude** : Global attitude towards statistics, numeric data type, likert scale 1-5  
+**Deep** : multiple questions combined that explore deep learning, numeric data type, likert scale 1-5  
+**Stra**: multiple questions comnined that explore strategic learning, numeric data type, likert scale 1-5  
+**Surf**: multiple questions combined that explore surface learning, numeric data type, likert scale 1-5  
+**Points**: points of students, numeric data type  
+
+## 2.2.Showing graphical overview of the data
+
+Installing and accessing the packages ggplot2, which is used to create graphics and GGally, an extension to ggplot2.
+```
+install.packages("ggplot2")
+install.packages("GGally")
+```
+```{r inst}
+library("ggplot2")
+
+library("GGally")
+```
+Exploring the data by printing out a summary:
+```{r sum}
+summary(learning2014)
+```
+Now we can get an overview about our data. There were 110 women and 56 men questioned for the data set, with an average age of about 25.5 years, the youngest beeing 17 and the oldest 55 years old. The Median of the age is 22. Most of the students are between 21 and 27 years old. The averaged attitude towards statistics is 3,14. The format ov the usual likert scale is:  
+1 Strongly disagree  
+2 Disagree  
+3 Neither agree nor disagree  
+4 Agree  
+5 Strongly agree  
+The mean of the strateic learning is about 3,68 the one considering strategic learning is about 3,12 and the mean of the questions considering surface learning is 2,78. The average amount of points is 22,72 with the minimum amount beeing 7 points and the maximal amount 33.
+
+Exploring the data regarding the relationships between them:
+```{r rel}
+pairs(learning2014[-1], col = learning2014$gender)
+```
+The red circles are male and the black the female participants and their attitude towards learning. In some of these scatter plots you can already see a correlation. For example the number of points also seems to increase when the attitude towards statistics increases. 
+A more detailed overview about the variables, distributions and relationships we can get using ggplot2 and GGally.
+
+```{r rel2}
+p <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+
+
+
+
+
+
+
+
+
+
