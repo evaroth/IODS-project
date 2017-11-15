@@ -1,6 +1,6 @@
 # RStudio Exercise 2 - Regression and model validation
 
-*In this exercise I have been working on a data set about students learning motivation. In preparation I transformed the raw data into a data set suitable for analysis. That process is called data wrangling.*
+*In this exercise I have been working on a data set about students learning motivation. In preparation I transformed the raw data into a data set suitable for analysis. That process is called data wrangling. After that I was analysing the data statistically in order to investigate the relationship between certain variables.*
 
 
 ## 2.1.Reading students2014 data into R and exploring its dimensions and structure.
@@ -67,9 +67,14 @@ p
   In this plot matrix I can for example see how strongly two variable are correlating. There is a correlation between attitude and points with a correlation factor of 0.451. There is little or no correlation between the points and the deep learning. I can read this from the small correlation factor of 0.01.
 
 
-## 2.3 multiple Regression model
-  If we want to examine the strength of the relationship between several variables (explanatory variables) on one target variable (dependet varaible) we can do this with a regression model. The model is written with the formula y ~ x1 + x2 + x3. It can also be used to make predictions. It is assumed that the relationship between y and the explanatory variables is linear.
-  Our target variable is "points". As explanatory variables I chose the ones with the highest correlation coefficient considering its relation to "points": attitude, strategic learning and surface learning.
+## 2.3 Multiple regression model
+  If we want to examine the strength of the relationship between several variables (explanatory variables) on one target variable (dependet varaible) we can do this with a regression model. The model is written with the formula y ~ x1 + x2 + x3. 
+ ![](/Users/eva-mariaroth/Desktop/Bildschirmfoto 2017-11-15 um 22.53.44.png)
+ 
+ Alpha corresponds to the point where the regression line intercepts the y-axis.
+Beta corresponds to the slope of the regression line. 
+  The model can also be used to make predictions. It is assumed that the relationship between y and the explanatory variables is linear.
+  Our target variable is "Points". As explanatory variables I chose the ones with the highest correlation coefficient considering its relation to "Points": attitude, strategic learning and surface learning.
   Hence our model looks like this:
   
 ```{r model}
@@ -81,8 +86,54 @@ The summary can be printed with
 ```{r summodel}
 summary(my_model)
 ```
-𝝰
 
 It shows the formula that created the model and underneath a five point summary of the residuals of the model.
-In the table the first column "Estimate" estimates the effect (𝝱 paramter) of the explanatory variables on the dependent variable. For attitude it is estimated with 3.3952, for strategic learning with 0,8531 and for surface learning with -0,5861. The next column gives the standard error, followed by the t-value (t-test) and the
+In the table the first column "Estimate" estimates the effect (𝝱 paramter) of the explanatory variables on the dependent variable. For attitude it is estimated with 3.3952, for strategic learning with 0,8531 and for surface learning with -0,5861. The next column gives the standard error, followed by the t-value and the p-value, that are statistical tests. A very low p-value proves a statistical relationship between the dependant and the explanatory variable. In our case a statistical relationship for "Points" with the values strategic learning and surface learning does not exist.
+Hence we rewrite the model only including attitude.
+
+```{r model2}
+my_model2 <- lm(Points ~ attitude, data = learning2014)
+summary(my_model2)
+```
+
+The regression line of "Points" correlating with "attitude" intercepts the y-axis at 11.63 an has a slope of 3.5.
+
+
+## 2.4 Diagnostic plots
+
+###Residuals vs Fitted values
+```{r plot1}
+par(mfrow = c(2,2))
+plot(my_model2, which = 1)
+```
+
+###Normal QQ-plot
+```{r plot2}
+par(mfrow = c(2,2))
+plot(my_model2, which = 2)
+```
+
+###Residuals vs Leverage
+```{r plot5}
+par(mfrow = c(2,2))
+plot(my_model2, which = 5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
