@@ -102,23 +102,26 @@ The regression line of "Points" correlating with "attitude" intercepts the y-axi
 ## 2.4 Diagnostic plots
 
 ###Residuals vs Fitted values
+
 ```{r plot1}
-par(mfrow = c(2,2))
 plot(my_model2, which = 1)
 ```
 
+In the linear regression model it is assumed that the errors are normally distributed and the size of an error should not dependent on the explanatory variables. This assumption can be explored with a scatter plot of residuals versus model predictions. If the points are randomly spread, without a pattern the assumtion can be proven. Here this is the case. The assumption can be proven.
+
 ###Normal QQ-plot
 ```{r plot2}
-par(mfrow = c(2,2))
 plot(my_model2, which = 2)
 ```
+  
+  The QQ-plot explores the assumption that the errors of the model are normally distributed.The points fall well on the line, therefor there is a reasonable fit to the normality assumtion.
 
 ###Residuals vs Leverage
 ```{r plot5}
-par(mfrow = c(2,2))
 plot(my_model2, which = 5)
 ```
 
+Leverage measures how much impact a single observation has on the model. Plotting Residuals vs. Leverage helps to identify if single observations have a unusually high impact on the model. In our example there is not a single observation that stands out.
 
 
 
