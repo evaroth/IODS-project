@@ -28,7 +28,7 @@ The dataset consists of 166 observations of 7 variables (columns) related to the
 **Points**: points of students, numeric data type  
 
 ## 2.2.Showing graphical overview of the data
-
+  
 Installing and accessing the packages ggplot2, which is used to create graphics and GGally, an extension to ggplot2.
 ```
 install.packages("ggplot2")
@@ -43,7 +43,7 @@ Exploring the data by printing out a summary:
 ```{r sum}
 summary(learning2014)
 ```
-Now we can get an overview about our data. There were 110 women and 56 men questioned for the data set, with an average age of about 25.5 years, the youngest beeing 17 and the oldest 55 years old. The Median of the age is 22. Most of the students are between 21 and 27 years old. The averaged attitude towards statistics is 3,14. The format ov the usual likert scale is:  
+  Now we can get an overview about our data. There were 110 women and 56 men questioned for the data set, with an average age of about 25.5 years, the youngest beeing 17 and the oldest 55 years old. The Median of the age is 22. Most of the students are between 21 and 27 years old. The averaged attitude towards statistics is 3,14. The format ov the usual likert scale is:  
 1 Strongly disagree  
 2 Disagree  
 3 Neither agree nor disagree  
@@ -55,20 +55,34 @@ Exploring the data regarding the relationships between them:
 ```{r rel}
 pairs(learning2014[-1], col = learning2014$gender)
 ```
-The red circles are male and the black the female participants and their attitude towards learning. In some of these scatter plots you can already see a correlation. For example the number of points also seems to increase when the attitude towards statistics increases. 
+  
+  The red circles represent the male and the black the female participants and their attitude towards learning. In some of these scatter plots you can already assume a correlation. For example the number of points also seems to increase when the attitude towards statistics increases. 
 A more detailed overview about the variables, distributions and relationships we can get using ggplot2 and GGally.
 
 ```{r rel2}
 p <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
 p
 ```
+  
+  In this plot matrix I can for example see how strongly two variable are correlating. There is a correlation between attitude and points with a correlation factor of 0.451. There is little or no correlation between the points and the deep learning. I can read this from the small correlation factor of 0.01.
 
 
+## 2.3 multiple Regression model
+  If we want to examine the strength of the relationship between several variables (explanatory variables) on one target variable (dependet varaible) we can do this with a regression model. The model is written with the formula y ~ x1 + x2 + x3. It can also be used to make predictions. It is assumed that the relationship between y and the explanatory variables is linear.
+  Our target variable is "points". As explanatory variables I chose the ones with the highest correlation coefficient considering its relation to "points": attitude, strategic learning and surface learning.
+  Hence our model looks like this:
+  
+```{r model}
+my_model <- lm(Points ~ attitude + stra + surf, data=learning2014)
+```
 
+The summary can be printed with
 
+```{r summodel}
+summary(my_model)
+```
+𝝰
 
-
-
-
-
+It shows the formula that created the model and underneath a five point summary of the residuals of the model.
+In the table the first column "Estimate" estimates the effect (𝝱 paramter) of the explanatory variables on the dependent variable. For attitude it is estimated with 3.3952, for strategic learning with 0,8531 and for surface learning with -0,5861. The next column gives the standard error, followed by the t-value (t-test) and the
 
