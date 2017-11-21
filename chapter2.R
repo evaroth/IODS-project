@@ -11,3 +11,11 @@ summary(learning2014)
 pairs(learning2014[-1], col = learning2014$gender)
 p <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
 p
+
+
+my_model <- lm(Points ~ attitude + stra + surf, data = learning2014)
+summary(my_model)
+
+my_model2 <- lm(Points ~ attitude, data = learning2014)
+par(mfrow = c(2,2))
+plot(my_model2, which = 1)
