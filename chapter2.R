@@ -19,3 +19,15 @@ summary(my_model)
 my_model2 <- lm(Points ~ attitude, data = learning2014)
 par(mfrow = c(2,2))
 plot(my_model2, which = 1)
+
+
+# Chapter 3
+alcdata <-read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/alcjoint", header=TRUE, sep=",")
+glimpse(alcdata)
+colnames(alcdata)
+dim(alcdata)
+str(alcdata)
+
+install.packages("tidyr")
+install.packages("dplyr")
+library("tidyr")

@@ -1,0 +1,56 @@
+# RStudio Excercise 3 - Logistic Regression  
+  
+  In this excercise I will analyse a data set about the drinking behaviour of students. First I was combining two data sets through data wrangling. After that...
+  
+## 3.1   Reading and describing the data
+``` {r readdata}
+alc <-read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/alcjoint", header=TRUE, sep=",")
+```
+The dataset consists of 382 observations of 35 variables. See below the the printed out names of the variables. For this dataset, two datasets were combined ([source: UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets.html)). The data was collected in two Portuguese secondary schools and comprises various information about the students (school, sex, age, address) their family backround, their attitude towards studying and education, how they spend their freetime, their alcohol consumption and their grades (G1, G2, G3). Two questions concerning the workday alcohol consumption (Dalc) and the weekend alcohol consumtpion (Walc) were combined during the data wrangling to the overall alcohol consumption (alc_use). Another variable concerning high alcohol consumption (high_use) was created. It contains all the observations with a consumption higher then 2.
+```{r dimalc}
+dim(alc)
+```
+```{r colnames}
+colnames(alc)
+
+```
+
+## 3.2 Hypothesises
+**Quality of familiy relationships** ("famrel", numeric: from 1 very bad to 5 excellent)    
+Hypothesis: Students with problematic family relationships have a higher alcohol consumption.    
+**Number of school absences** ("absences", numeric from 0 to 93)    
+Hypothesis: Students with a high alcohol consumtion are more often skipping school.   
+**Number of past class failures** ("failures", numeric: n if 1<=n<3, else 4)   
+Hypothesis: High alcohol consumption leeds to a higher amount of failed classes.      
+**Final grade** ("G3"", numeric:from 0 to 20, output target)    
+Hypothesis: Students with higher alcohol consumption have lower final grades.  
+
+First we want to visualize the distribution of the data.
+
+```{r barplot}
+selected_variables <- subset (alc, select = c("famrel", "absences", "failures", "G3", "alc_use"))
+library(tidyr)
+library(ggplot2)
+gather(selected_variables) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+```
+
+Now we want to see, how the four selected variables influence on the alcohol consumption.
+As the grades are approximately normally distributed, we can show the relationship between grades and high alcohol consumtpion nicely with a boxplot. For the other variables this is not a good method. We can see, that the male students that  have an alcohol consumption of more then two, have lower grades then the ones who drink less. For women there seems to be no difference. 
+``` {r box grades}
+g1 <- ggplot(alc, aes(high_use, y = G3, col =sex))
+g1 + geom_boxplot() + ylab("Grades") + ggtitle("Effects on high alcohol consumption on grades")
+```
+
+
+
+
+
+
+
+```{r glm}
+m<-glm(high_use ~ famrel + absences + failures + G3, data = alc, family = "binomial")
+summary(m)
+```
+
+
+
