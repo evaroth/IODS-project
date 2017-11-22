@@ -1,12 +1,12 @@
 # RStudio Excercise 3 - Logistic Regression  
   
-  In this excercise I will analyse a data set about the drinking behaviour of students. First I was combining two data sets through data wrangling. After that...
+  In this excercise I am analysing a data set about the drinking behaviour of Portuguese students. At first two dataset were combined in order to analyse them (data wrangling). Later certain variables and their relationships with the students drinking behavior are analysed. The drinking behaviour was converted into a discrete variable. For a discrete target variable, logistic regression is a suitable method for analysis.
   
-## 3.1   Reading and describing the data
+### 3.1   Reading and describing the data
 ``` {r readdata}
 alc <-read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/alcjoint", header=TRUE, sep=",")
 ```
-The dataset consists of 382 observations of 35 variables. See below the the printed out names of the variables. For this dataset, two datasets were combined ([source: UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets.html)). The data was collected in two Portuguese secondary schools and comprises various information about the students (school, sex, age, address) their family backround, their attitude towards studying and education, how they spend their freetime, their alcohol consumption and their grades (G1, G2, G3). Two questions concerning the workday alcohol consumption (Dalc) and the weekend alcohol consumtpion (Walc) were combined during the data wrangling to the overall alcohol consumption (alc_use). Another variable concerning high alcohol consumption (high_use) was created. It contains all the observations with a consumption higher then 2, with 1 beeing very low alcohol consumption and 5 beeing very high consumtion.
+The dataset consists of 382 observations of 35 variables. See below the the printed names of the variables. For this dataset, two datasets were combined ([source: UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets.html)). The data was collected in two Portuguese secondary schools and comprises various information about the students (school, sex, age, address), their family backround, their attitude towards studying and education, how they spend their freetime, their alcohol consumption and their grades (G1, G2, G3). Two questions, concerning the workday alcohol consumption (Dalc) and the weekend alcohol consumtpion (Walc), were combined during the data wrangling to the overall alcohol consumption (alc_use). Another variable concerning high alcohol consumption (high_use) was created. It contains all the observations with a consumption higher then 2, with 1 beeing very low alcohol consumption and 5 beeing very high consumtion.
 ```{r dimalc}
 dim(alc)
 ```
@@ -15,7 +15,7 @@ colnames(alc)
 
 ```
 
-## 3.2 Hypothesises
+### 3.2 Hypotheses
 **Quality of familiy relationships** ("famrel", numeric: from 1 very bad to 5 excellent)    
 Hypothesis: Students with problematic family relationships have a higher alcohol consumption.    
 **Number of school absences** ("absences", numeric from 0 to 93)    
@@ -25,9 +25,8 @@ Hypothesis: High alcohol consumption leeds to a higher amount of failed classes.
 **Final grade** ("G3"", numeric:from 0 to 20, output target)    
 Hypothesis: Students with higher alcohol consumption have lower final grades.  
 
-###3.2.1 Visualization of distribution of the data with barplots
-
-
+###3.3 Visualization of the selected variables
+####Visualization with barplots
 ```{r barplot}
 selected_variables <- subset (alc, select = c("famrel", "absences", "failures", "G3", "alc_use"))
 library(tidyr)
@@ -38,21 +37,22 @@ gather(selected_variables) %>% ggplot(aes(value)) + facet_wrap("key", scales = "
 Now we want to see, how the four selected variables influence on the alcohol consumption.
 As the grades are approximately normally distributed, we can show the relationship between grades and high alcohol consumtpion nicely with a boxplot. 
 
-###3.2.2 visualization of relation between variables with boxplot
-We can see, that the male students that have an alcohol consumption of more then two, have lower grades then the ones who drink less. For women there seems to be no difference. 
+####Visualization with boxplot
+
 ``` {r box grades}
 g1 <- ggplot(alc, aes(high_use, y = G3, col =sex))
 g1 + geom_boxplot() + ylab("Grades") + ggtitle("Effects on high alcohol consumption on grades")
 ```
+We can see, that the male students that have an alcohol consumption of more then two, have lower grades then the ones who drink less. For women there seems to be no difference. 
 
-###3.3.3 Cross-tabulation
+####Cross-tabulation
 The relation between the high alcohol consumption and the selected variables can also be explored numerically with cross-tabulations. Below we will examine the correlation between a variable and high amount of drinking by comparing the means of the answers, of students that have a high alcohol consumption (TRUE), with the ones of the students that do not have a high consumption (FALSE).
 ```{r cross}
 library(dplyr)
 alc %>% group_by (high_use) %>% summarise (count = n(), mean_grade = mean (G3))
 ```
 tab. 1: Effect of high alcohol consumption on the final grades.
-We can see from the means, that students with a high alcohol consumption have a lower average final grades, with a difference of 0.9 compared to the ones with low alcohol consumption. This supports our hypothesis.
+We can see from the means, that students with a high alcohol consumption have lower average final grades, with a difference of 0.9 compared to the ones with low alcohol consumption. This supports our hypothesis.
 
 ```{r crossfamrel}
 alc %>% group_by (high_use) %>% summarise (count = n(), mean_grade = mean (famrel))
@@ -64,18 +64,62 @@ The quality of family relationships ranges from 1 - very bad to 5 - excellent. A
 alc %>% group_by (high_use) %>% summarise (count = n(), mean_grade = mean (absences))
 ```
 tab. 3: Relationship between drinking behaviour and number of absences.
-Students that have a high alcohol consumption have been nearly twice (1,7 times) as much absent than the students who do not have a high consumtion. that supports our hypothesis.
+Students that have a high alcohol consumption have been nearly twice (1,7 times) as many times absent as the students who do not have a high consumption. that supports our hypothesis.
 
 ```{r crossfailures}
 alc %>% group_by (high_use) %>% summarise (count = n(), mean_grade = mean (failures))
 ```
 tab. 4: Relationship between drinking behaviour and number of failed courses.
-The averaged number of failed classes is slightly higher, when students have a high alcohol consumtion. That confirms our initial hypothesis.
+The averaged number of failed classes is slightly higher, when students have a high alcohol consumption. That confirms our initial hypothesis.
 
+###3.4 Logistic regression
+After visualising the data we know that the hypotheses for our four selected variables are supported by the data. But can we also prove that statistically. With logistic regression we will now explore statistically the relationship between the variables and the drinking behaviour again.
 
 ```{r glm}
 m<-glm(high_use ~ famrel + absences + failures + G3, data = alc, family = "binomial")
 summary(m)
+```
+Amongst the four selected variables the number of absences is most strongly correlated with the high alcohol consumption.A p-value < 0.05 indicates a statistical significance. Hence also the amount of failed courses has a statistically significant correlation with high alcohol consumption. The quality of family relationships is iversively related to alcohol consumtion, wich means, the better the relationships the lower the alcohol consumption. However the correlation is not statistically significant. Furthermore there is no significant correlation between the final grades and the drinking behaviour according to the model. Only two of our hypotheses could be proven statistically.
+
+####Odd ratios and confidence intervals
+The odds ratio quantifies the relationship between X and Y. In this case Y is high alcohol use and X are the explanatory variables used in our model: quality of family relationships, absences, failures and final grades.
+
+```{r or}
+OR <- coef(m) %>% exp()
+CI <- confint(m) %>% exp()
+coef(m)
+```
+Odds higher then 1 mean that x is positively related with success.
+Unfortunately this doesnt go anywhere so I cannot interpret the odds ratio. 
+
+###3.5 Predictions
+No we will only select the two variables with a significant relationship to alcohol consumption and write the model again. By the use of the logistic model a prediction of the probability of the high consumption of alcohol can be made. If the probability is higher then 50%, a high consumtion is predicted (= TRUE). The predictions are added to the data set as a new variable as can be seen in the data below that always shows the first ten observations of each question.
+
+```{r predict}
+m <- glm(high_use ~ failures + absences, data = alc, family = "binomial")
+probabilities <- predict(m, type = "response")
+alc <- mutate(alc, probability = probabilities)
+alc <- mutate(alc, prediction = probability > 0.5)
+head(alc, n=10)
+```
+
+No we will compare the prediction to our target variable via cross tabulation.
+```{r crosstabpredictions}
+table(high_use = alc$high_use, prediction = alc$prediction)
+```
+The cross tabulation shows that there are 10 values that are FALSE in the original data and predicted as TRUE from the model. Furthermore there are 99 cases were the students said TRUE and the model predicted a false. In 273 cases the model predicted the correct answer. Hence the total proportion of inaccurately classified individuals (= the training error) is 28.53%. Unfortunately the model only predicted 71,47% of the answers correctly. I would say that this is a relatively low amount and the model would need to be adjusted, for example by including more variables that have a strong relation to the drinking behaviour. Finally we can also see the data visualized, though I find the cross tabulation more comprehensible.
+
+```{r loss func}
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+loss_func(class = alc$high_use, prob = alc$probability)
+```
+
+```{r preplot}
+g <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+g + geom_point()
 ```
 
 

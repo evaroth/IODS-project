@@ -31,3 +31,17 @@ str(alcdata)
 install.packages("tidyr")
 install.packages("dplyr")
 library("tidyr")
+help(summary.glm) 
+example(glm)
+
+m<-glm(high_use ~ famrel + absences + failures + G3, data = alc, family = "binomial")
+summary(m)
+OR <- coef(m) %>% exp()
+CI <- confint(m) %>% exp()
+
+
+
+
+
+
+

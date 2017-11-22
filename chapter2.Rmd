@@ -3,7 +3,7 @@
 *In this exercise I have been working on a data set about students learning motivation. In preparation I transformed the raw data into a data set suitable for analysis. That process is called data wrangling. After that I was analysing the data statistically in order to investigate the relationship between certain variables.*
 
 
-## 2.1.Reading students2014 data into R and exploring its dimensions and structure.
+### 2.1.Reading students2014 data into R and exploring its dimensions and structure.
 
 ```{r}
 learning2014 <- read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/learning2014.csv", header = TRUE)
@@ -27,7 +27,7 @@ The dataset consists of 166 observations of 7 variables (columns) related to the
 **Surf**: multiple questions combined that explore surface learning, numeric data type, likert scale 1-5  
 **Points**: points of students, numeric data type  
 
-## 2.2.Showing graphical overview of the data
+### 2.2.Showing graphical overview of the data
   
 Installing and accessing the packages ggplot2, which is used to create graphics and GGally, an extension to ggplot2.
 ```
@@ -67,7 +67,7 @@ p
   In this plot matrix I can for example see how strongly two variable are correlating. There is a correlation between attitude and points with a correlation factor of 0.451. There is little or no correlation between the points and the deep learning. I can read this from the small correlation factor of 0.01.
 
 
-## 2.3 Multiple regression model
+### 2.3 Multiple regression model
   If we want to examine the strength of the relationship between several variables (explanatory variables) on one target variable (dependet varaible) we can do this with a regression model. The model is written with the formula y ~ x1 + x2 + x3. 
  ![](/Users/eva-mariaroth/Desktop/Bildschirmfoto 2017-11-15 um 22.53.44.png)
  
@@ -99,9 +99,9 @@ summary(my_model2)
 The regression line of "Points" correlating with "attitude" intercepts the y-axis at 11.63 an has a slope of 3.5.
 
 
-## 2.4 Diagnostic plots
+### 2.4 Diagnostic plots
 
-###Residuals vs Fitted values
+####Residuals vs Fitted values
 
 ```{r plot1}
 plot(my_model2, which = 1)
@@ -109,14 +109,14 @@ plot(my_model2, which = 1)
 
 In the linear regression model it is assumed that the errors are normally distributed and the size of an error should not dependent on the explanatory variables. This assumption can be explored with a scatter plot of residuals versus model predictions. If the points are randomly spread, without a pattern the assumtion can be proven. Here this is the case. The assumption can be proven.
 
-###Normal QQ-plot
+####Normal QQ-plot
 ```{r plot2}
 plot(my_model2, which = 2)
 ```
   
   The QQ-plot explores the assumption that the errors of the model are normally distributed.The points fall well on the line, therefor there is a reasonable fit to the normality assumtion.
 
-###Residuals vs Leverage
+####Residuals vs Leverage
 ```{r plot5}
 plot(my_model2, which = 5)
 ```
