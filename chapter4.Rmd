@@ -27,9 +27,13 @@ pairs(Boston)
 ```{r boston.atrix}
 library(tidyr)
 library(corrplot)
+library(ggplot2)
 cor_matrix<-cor(Boston)
 cor_matrix %>% round(digits=2)
 corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+```
+```{r bar}
+gather(Boston) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
 ```
 
 ####Data wrangling 
@@ -55,8 +59,6 @@ n <- nrow(boston_scaled)
 ind <- sample(n, size = n*0.8)
 train <- boston_scaled[ind,]
 test <- boston_scaled[-ind,]
-correct_classes <- test$crime
-test <- dplyr::select(test, -crime)
 dim(test)
 dim(train)
 ```
@@ -80,7 +82,60 @@ lda.arrows(lda.fit, myscale = 1)
 
 ```
 
+####Predict LDA
 ```{r predict.crime}
+correct_classes<-test$crime
+test<-dplyr::select(test, -crime)
 lda.pred <- predict(lda.fit, newdata = test)
 table(correct = correct_classes, predicted = lda.pred$class)
 ```
+
+#### K-means Clustering
+
+```{r reload}
+#reloading
+data(Boston)
+
+#scale dataset and make data frame
+boston_scaled1<-as.data.frame(scale(Boston))
+```
+
+For calculating the distances between the obeservations we use the most common, euclidean distance.
+
+```{r distances}
+dist_eu <-dist(boston_scaled1)
+summary(dist_eu)
+```
+
+Now we apply K-means to the dataset. We start with a number of 4 cluster centers.
+```{r Kmeans}
+km <- kmeans(boston_scaled1, centers = 4)
+```
+However, we want to determine the optimal number of clusters.
+```{r number of clusters}
+set.seed(123)
+
+#set the max number of clusters to be ten
+k_max<- 10
+
+#calculate total WCSS
+twcss <- sapply(1:k_max, function(k){kmeans(Boston, k)$tot.withinss})
+
+#visualizing WCSS
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+```{r run Kmeans again}
+km <- kmeans(boston_scaled1, centers = 2)
+
+#visualize Kmeans
+pairs(boston_scaled1, col = km$cluster)
+```
+
+
+
+
+
+
+
+
