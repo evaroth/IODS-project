@@ -1,0 +1,86 @@
+#RStudio Exercise 4 - Clustering and classification
+
+```{r MASS}
+library(MASS)
+data("Boston")
+```
+
+There are many data sets already loaded in R or included in the package installations. In this exercise we will practise our analysis on a data set called "Boston" from the "MASS" package. 
+The data set concernes the housing values in the suburbs of Boston.
+
+```{r head.Boston}
+head(Boston)
+```
+
+```{r dim Boston}
+dim(Boston)
+str(Boston)
+```
+
+```{r summary.variables}
+summary(Boston)
+```
+
+```{r pairs.boston}
+pairs(Boston)
+```
+```{r boston.atrix}
+library(tidyr)
+library(corrplot)
+cor_matrix<-cor(Boston)
+cor_matrix %>% round(digits=2)
+corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+```
+
+####Data wrangling 
+Standardizing the dataset and creating a factor variable for the crime rate. As the data contains only numerical values, we can use the scale() function to standardize the whole dataset. Dividing the dataset into a train and a test set.
+
+```{r boston.scaled}
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+```
+ The variable crim describes the per capita crime rate by town.
+```{r variable}
+class(boston_scaled)
+boston_scaled <- as.data.frame(boston_scaled)
+bins <- quantile(boston_scaled$crim)
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled <- data.frame(boston_scaled, crime)
+head(boston_scaled)
+```
+
+```{r split}
+n <- nrow(boston_scaled)
+ind <- sample(n, size = n*0.8)
+train <- boston_scaled[ind,]
+test <- boston_scaled[-ind,]
+correct_classes <- test$crime
+test <- dplyr::select(test, -crime)
+dim(test)
+dim(train)
+```
+
+Fitting a linear discriminant analysis to the training set. Crime is a target varaible and all the other variables are predictors.
+
+```{r discr.analysis}
+lda.fit <- lda(crime ~ ., data = train)
+lda.fit
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "orange", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+classes <- as.numeric(train$crime)
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 1)
+
+```
+
+```{r predict.crime}
+lda.pred <- predict(lda.fit, newdata = test)
+table(correct = correct_classes, predicted = lda.pred$class)
+```

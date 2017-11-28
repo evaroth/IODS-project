@@ -1,4 +1,4 @@
-# RStudio Excercise 3 - Logistic Regression  
+# RStudio Exercise 3 - Logistic Regression  
   
   In this excercise I am analysing a data set about the drinking behaviour of Portuguese students. At first two dataset were combined in order to analyse them (data wrangling). Later certain variables and their relationships with the students drinking behavior are analysed. The drinking behaviour was converted into a discrete variable. For a discrete target variable, logistic regression is a suitable method for analysis.
   
