@@ -130,6 +130,7 @@ km <- kmeans(boston_scaled1, centers = 2)
 
 #visualize Kmeans
 pairs(boston_scaled1, col = km$cluster)
+pairs(boston_scaled1[6:10], col = km$cluster)
 ```
 
 
