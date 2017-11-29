@@ -134,6 +134,83 @@ pairs(boston_scaled1[6:10], col = km$cluster)
 ```
 
 
+####Bonus
+At first we scale the Boston dataset again.
+```{r Bonus}
+summary(Boston)
+boston_scaled2 <-scale(Boston)
+summary(boston_scaled2)
+```
+Now we perform the K-means on the standardized dataset.
+
+```{r kmeansbonus}
+km2 <- kmeans(boston_scaled2, center = 3)
+boston_scaled2 <- as.data.frame(boston_scaled2)
+```
+
+Finally we perform Linear Discriminant Analysis, using the clusters as target classes, including all the variables from the Boston data in the LDA model.
+```{r lda}
+lda.fit2 <- lda(km2$cluster~., data = boston_scaled2)
+```
+Visualizing the results, we can observe...
+
+```{r ldavisual}
+# function for the lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# setting target classes as numeric
+classes <- as.numeric(km2$cluster)
+
+# plotting the lda results
+plot(lda.fit2, dimen = 2, col=classes, pch= classes)
+lda.arrows(lda.fit, myscale = 1)
+```
+
+####Super bonus
+We are running the code bellow for the scaled train data that we used to fit the LDA.It creates a matrix product, which is a projection of the data points.
+
+```{r super bonus}
+model_predictors <- dplyr::select(train, -crime)
+
+# check the dimensions
+dim(model_predictors)
+dim(lda.fit$scaling)
+
+# matrix multiplication
+matrix_product <- as.matrix(model_predictors) %*% lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+```
+Now we are installing and accessing the plotly package in order to create a 3D plot from our data.
+```{r 3Dplot}
+library(plotly)
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers')
+```
+
+We draw the same plot again, but set the crime classes to be the colours.
+```{r 3Dcrime}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers', color = train$crime)
+```
+
+Drawing the same plot again with the colours matching the clusters of the K-means.
+```{r 3D cluster}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers', color = train$cl)
+```
+
+
+
+
+
+
+
+
+
 
 
 
