@@ -18,7 +18,7 @@ rm      -average number of rooms per dwelling.
 age     -proportion of owner-occupied units built prior to 1940.  
 dis     -weigthed mean of distances to five Boston employment centres.  
 rad     -index of accessibility to radial highways.  
-tax     -full-valua property-tax rate per \10,000$.  
+tax     -full-value property-tax rate per 10,000$.  
 ptratio -pupil-teacher ratio by town.  
 black   -1000(Bk-0.63)^2 where Bk is the proportion of blacks by town.  
 lstat   -lower status of the population (percent).  
@@ -30,7 +30,7 @@ str(Boston)
 ```  
 All the observations of the variables are numerival except for indus and rad, which are integer.
 
-Now, lets have a look at the summary of the distributions of the variables. Here we cann see for example, that the mean crime rate is 3.61, whereas the median is 0.25 and the values range between 0.00 and 88.9. The mean of the pupil/teacher ratio is 18.46, which I find surprisingly low.
+Now, lets have a look at the summary of the distributions of the variables. Here we can see for example, that the mean crime rate is 3.61, whereas the median is 0.25 and the values range between 0.00 and 88.9. The mean of the pupil/teacher ratio is 18.46, which I find surprisingly low.
 ```{r summary.variables}
 summary(Boston)
 ```  
@@ -41,37 +41,38 @@ library(tidyr)
 gather(Boston) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
 ```
 
-Using the pairs function we can see how the variables are distributed and derive first assumptions about their relationships to each other. However, there are too many variables to get an overview with one glance.
+Using the pairs function we can see how the variables are distributed and derive first assumptions about their relationships to each other. However, there are too many variables to get an overview at one glance.
 ```{r pairs.boston}
 pairs(Boston)
 ```  
-```{r boston.atrix}
 
-library(corrplot)
-
-cor_matrix<-cor(Boston)
-cor_matrix %>% round(digits=2)
-corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
-```  
-
-A better option to investigate the relationship of the variables is the corrolationplot. The colour indicates what kind of correlation we have:    
+A better option to investigate the relationship of the variables is the corrolation matrix, or more visual, the corrolation plot. The corrolation matrix shows the correlation coefficient between two variables.
+In the corolation plot the colour indicates what kind of correlation we have:    
 red - negative correlation  
 blue - positive correlation  
 The size of the cirlce and the intensity of the colour indicate the correlation coefficient.  
 strong colours - corrolation coefficient is high    
 light colours  - corrolation coefficient is low  
-The strongest correlation can be found betwenn the index of accessibility to radial highways and the full-valua property-tax rate per \10,000$. The weighted mean of distances to five Boston employment centres correlates strongly with age, nitrogen oxide concentration and the proportion of non-retail business acres per town. 
+The strongest correlation can be found betwenn the index of accessibility to radial highways (rad) and the full-value property-tax rate per 10,000$ (tax) with a correlation coefficient of 0.91. The weighted mean of distances to five Boston employment centres (dis) correlates strongly with age (age), nitrogen oxide concentration (nox) and the proportion of non-retail business acres per town (indus). 
+
+```{r boston.atrix}
+library(corrplot)
+cor_matrix<-cor(Boston)
+cor_matrix %>% round(digits=2)
+corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+```  
 
 
 
-###4.2 Data wrangling 
-Standardizing the dataset and creating a factor variable for the crime rate. As the data contains only numerical values, we can use the scale() function to standardize the whole dataset. Furthermore we are dividing the dataset into a train and a test set with 80% and respectively 20% of the observations per variable, which are randomly selected.
+###4.2 Preparing the data for the linear discriminant analysis 
+Now we are standardizing the dataset in order to conduct the linear discriminant analysis.As the data contains only numerical values, we can use the scale() function to standardize the whole dataset. The scaling needs to be done, because the linear discriminant analysis assumes that the variables are normally distributed and the variance of each variable is the same. Bellow we can see the summaries of the scaled data and compare it to the prvious summary. All the variable have the same scale now. The mean for each variable is now 0.
 
 ```{r boston.scaled}
 boston_scaled <- scale(Boston)
 summary(boston_scaled)
 ```
- The variable crim describes the per capita crime rate by town.
+
+Furthermore we are creating a factor variable for the crime rate. The variable crim describes the per capita crime rate by town. The observations of that variable, derived from the scaled data, are split into four categories on the quantiles (25%). The categories are "low", "medium low", "medium high" and "high". The new variable "crime" is replacing the old variable "crim".
 ```{r variable}
 class(boston_scaled)
 boston_scaled <- as.data.frame(boston_scaled)
@@ -82,6 +83,7 @@ boston_scaled <- data.frame(boston_scaled, crime)
 head(boston_scaled)
 ```
 
+Before the linear discriminant analysis we are dividing the dataset into a train and a test set with 80% and respectively 20% of the observations per variable, which are randomly selected.The test set will be used to test how well the predictions of the model fit, i.e. how well it works.
 ```{r split}
 n <- nrow(boston_scaled)
 ind <- sample(n, size = n*0.8)
@@ -91,11 +93,15 @@ dim(test)
 dim(train)
 ```
 
-Fitting a linear discriminant analysis to the training set. Crime is a target varaible and all the other variables are predictors.
+###4.3 Linear discriminant analysis
+Now we ar fitting a linear discriminant analysis (LDA) to the training set. Crime is the target varaible and all the other variables are predictors.
 
 ```{r discr.analysis}
 lda.fit <- lda(crime ~ ., data = train)
 lda.fit
+```
+We can draw a LDA biplot to visualize how the data is distributed. Each colour represents a different class and the arrow represent the predictor variable. Length and direction are based on the coefficients and show their impact on the model.
+```{r lda biplot}
 lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "orange", tex = 0.75, choices = c(1,2)){
   heads <- coef(x)
   arrows(x0 = 0, y0 = 0, 
@@ -110,7 +116,8 @@ lda.arrows(lda.fit, myscale = 1)
 
 ```
 
-####Predict LDA
+####Predict with LDA
+With our trained LDA-model, we can make predictions about new observations for the variable crime. We predict the classes with the LDA model and apply it on the test set. We cross tabulate the results of our predictions with the crime categories from the test set we created earlier. We can see that 72 observations were correctly predicted and 30 were false. That means our training error is about 31.8%
 ```{r predict.crime}
 correct_classes<-test$crime
 test<-dplyr::select(test, -crime)
@@ -119,7 +126,7 @@ table(correct = correct_classes, predicted = lda.pred$class)
 ```
 
 #### K-means Clustering
-
+First scale the dataset Boston again and calculate the distances between the observations. For calculating the distances between the obeservations we use the most common, euclidean distance.
 ```{r reload}
 #reloading
 data(Boston)
@@ -128,18 +135,16 @@ data(Boston)
 boston_scaled1<-as.data.frame(scale(Boston))
 ```
 
-For calculating the distances between the obeservations we use the most common, euclidean distance.
-
 ```{r distances}
 dist_eu <-dist(boston_scaled1)
 summary(dist_eu)
 ```
 
-Now we apply K-means to the dataset. We start with a number of 4 cluster centers.
+Now we apply K-means to the dataset. K-means calculates the distances and assigns observations to clusters. We start with a randomly selected number of 4 cluster centers.
 ```{r Kmeans}
 km <- kmeans(boston_scaled1, centers = 4)
 ```
-However, we want to determine the optimal number of clusters.
+However, we want to determine the optimal number of clusters. That can be done with the behaviour of the total of within cluster sum of squares (WCSS) when the number of clusters changes. The optimal number of clusters is when the total WCSS drops radically. We are setting the maximal amount of clusters to be 10. In the visualization we can see that the WCSS drops radically between one and two. Therefor two would be the optimal amount of clusters.
 ```{r number of clusters}
 set.seed(123)
 
@@ -153,6 +158,7 @@ twcss <- sapply(1:k_max, function(k){kmeans(Boston, k)$tot.withinss})
 qplot(x = 1:k_max, y = twcss, geom = 'line')
 ```
 
+We run the K-means algorythm again with two cluster centres. The results are visualized in a plot matric with all the results and then exemplarily zoomed in for the five variables rm, age, dis, rad and tax.The two clusters can be seen in red and black and how they relate for each combination of variables.
 ```{r run Kmeans again}
 km <- kmeans(boston_scaled1, centers = 2)
 
@@ -180,7 +186,7 @@ Finally we perform Linear Discriminant Analysis, using the clusters as target cl
 ```{r lda}
 lda.fit2 <- lda(km2$cluster~., data = boston_scaled2)
 ```
-Visualizing the results, we can observe...
+Visualizing the results, we can see wich ones are the most influential variables seperating the clusters:rad, nox and zn.
 
 ```{r ldavisual}
 # function for the lda biplot arrows
