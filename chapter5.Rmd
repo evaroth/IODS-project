@@ -1,0 +1,154 @@
+#RStudio Exercise 5 - Dimensionality reduction techniques
+In this exercise we will perfrom principal component analysis and multiple correspondence analysis on two different datasets.
+
+###5.1 Principal Component Analysis
+#### Reading and describing the dataset "human"
+```{r read csv}
+human <- read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/human_.csv", header = TRUE, sep= ",")
+str(human)
+```
+```{r dim human}
+dim(human)
+```
+
+The dataset is a subset of data that originates from the [United Nations Development Programme](http://hdr.undp.org/en/content/human-development-index-hdi) (UNDP). The dataset from the UNDP aims to compare the development of countries and regions of the world, including not only growth alone, but many different varibles. During data wrangling 6 variables of interest were selected for the subset and two variables were added by calculating the ratio of variables. Furthermore all the obeservation with missing values were excluded from the dataset. After preparation for analysis the dataset consists of 155 observations of the following 8 variables.  
+**Edu2.FM**   - Ratio of proportion of female citizens with at least secondary education to proportion of male citizens with at least secondary education  
+**Labo.FM**   - Ratio of labour force participation of female citizens to labour force proportion of male citizens  
+**Edu.Exp**   - Expected years of schooling  
+**Life.Exp**  - Life expectancy at birth  
+**GNI**       - Gross National Income per capita  
+**Mat.Mor**   - Maternal mortality ratio  
+**Ado.Birth** - Adolescent birth rate  
+**Parli.F**   - Percentage of female representatives in parliament  
+The data was collected in 155 countries (=observations).
+ 
+```{r head human} 
+head(human)
+```
+
+
+#### Graphical overview and summaries of variables
+```{r summary human}
+summary(human)
+```
+
+All our variables are continuous and numeric, which is neccessary for the principle component analysis. But before this, lets see what kind of conclusions we can draw from the graphical overview.
+
+```{r graphical human}
+library(ggplot2)
+library(tidyr)
+library(GGally)
+ggpairs(human, title = "Table 1. Correlation matrix for paired variables of dataset human")
+```
+  
+The correlation matrix for the paired variables gives us the correlation coefficients as well as small scatterplots indicating the relationship between two variables. Looking at the scatterplots, we can clearly see a positive correlation between life expectancy and expected years of schooling. The correlation coefficient of 0.789 confirms that assumption. Another way to get a fast impression about the relationship between two variables is the corrolation plot. In the corolation plot the colour indicates what kind of correlation we have:    
+red - negative correlation  
+blue - positive correlation  
+The size of the cirlce and the intensity of the colour indicate the correlation coefficient.  
+strong colours - corrolation coefficient is high    
+light colours  - corrolation coefficient is low  
+
+```{r carrplot human}
+
+library(corrplot)
+#writing the correlation matrix
+cor_matrix <- cor(human)%>%round(digits=2)
+#drawing the correlation plot
+corrplot(cor_matrix, type="upper", title = "Correlation plot for paired variables of dataset human")
+```
+  
+We can see that the strongest correlation is a negative correlation between maternal mortality rate and life expectancy. That means, if the maternal mortality rate is higher the average life expactancy tends to be lower. Furthermore there is a strong negative correlation between maternal mortality rate and expected years of schooling and a strong positive correlation between life expectancy and the expected years of schooling. There is no correlation between the rate of women with secondary education/men with secondary education with the rate of the labourforce of women/lobourforce of men.
+
+
+#### Reducing dimensionality with principal component analysis
+Principal component analysis (PCA) reduces the number of dimensions in multivariate data. In our case, from 8 dimensions to two. 
+The 1st principal component captures the maximum amount of variance from the features in the original data. The 2nd principal component is orthogonal to the first and it captures the maximum amount of the variablity left. The biplot below shows the observations of "human" in a two dimensional representation. A scatterplot is drawn showing the observations placed on x and y coordinates defined by the two principal components (PCs). The arrows are drawn to visualize the connections between the original features and the PC´s.
+The angle between the arrows represent the correlation between the features. Small angle = high positive correlation.
+The angle between a feature and a PC axis can be interpreted as the correlation between the two. Small angle = high positive correlation.  
+The length of the arrows are proportional to the standard deviations of the features.
+First we are going to conduct PCA on the dataset without standardizing it.
+```{r PCA}
+pca_human <- prcomp(human)
+biplot(pca_human, choices = 1:2, cex = c(0.5, 1), col =c("grey40", "green4"), main = "PCA on unscaled dataset human - few conclusions can be drawn")
+
+```
+  
+  In the biplot we can see our observations in grey and the correlation arrows in green. The GNI seems to have the highest standard deviation. However, the variables in the unscaled data do have different units and we cannot draw good conclusion from this biplot. We have to scale them in order to compare their influences on one another.
+the result can be seen in the next biplot.
+
+```{r pca standardized}
+#scaling the dataset
+human_std <-scale(human)
+pca_human2 <- prcomp(human_std)
+s <- summary(pca_human2)
+pca_pr <- round(100*s$importance[2, ], digits = 1)
+#create object pc_lab to use for the labels of the axis
+pc_lab <-paste0(names(pca_pr), " (", pca_pr, "%)")
+#draw a biplot
+biplot(pca_human2, choices = 1:2, cex = c(0.5, 1), col =c("grey40", "green4"), xlab = pc_lab[1], ylab = pc_lab[2], main = "PCA on scaled dataset - correlations visible")
+```
+  
+  In this second biplot we can get a good overview about the behaviour of the variables. Maternal Mortality ratio and Adolescent birth rate are clearly positively correlating. Also they are strongly correlating with PC1. 
+Other variables that are correlating are the expected years of schooling, life expectancy at birth, GNI and the Ratio of females with secondary education to males with secondary education. However they are negatively correlated to PC1.
+Furthermore the ratio of womens labour force/mens labour force and the percentage of female representatives in parliament are correlating. These variables are positively correlating with PC2. 
+The dimensionality of our date is reduced to the two pricipal components. The first PC captures 53.6% of the total variance in the 8 original variables. PC2 captures 16.2% of the variance.
+
+###5.2 Multiple Correspondence Analysis
+####Exploring the dataset "tea"
+Multiple Correspondence Analysis is designed to analyse quantitative or categorical variables. Therefore, we cannot use our dataset human, as it consists of numeric variables. The dataset "tea" is one of the datasets provided in R. It comes with the package Foctominer and is concerned with peoples tea drinking behaviour and their approach towards drinking tea. We access the dataset through the package and explore its dimensions and structure.
+
+```{r factoMineR}
+library("FactoMineR")
+data("tea")
+dim(tea)
+```
+```{r str tea}
+str(tea)
+
+```
+
+The dataset has 300 observations of 36 variables. Except for the variables "age", which is numerical and continuous we have either factor variables with varying levels or logical variables, such as "sugar" or "no sugar". Now we will briefly draw some bar plots to visualize the data.
+
+```{r tea}
+gather(tea[1:12]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar(colour = "green4")+theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+```
+```{r tea2}
+gather(tea[13:24]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar(colour = "green4")+theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+```{r tea3}
+gather(tea[25:36]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar(colour = "green4")+theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+####MCA on subset tea_time
+For performing the Multiple correspondance analysis we are  selecting 8 different variables for a smaller subset "tea_time".
+In order to perform the MCA, the numeric variable "age" needs to be transfomed into a factor variable by cutting the variables into 5 groups, which are the age spans 15-30, 31-45, 46-50 and 50-75. Now we can see the summary for the distribution of the data for these 10 variables.
+```{r tea_time}
+library(dplyr)
+agef <- cut(tea$age, breaks = 5, labels = c("15-30","31-45", "46-50", "50-75", "75-90"))
+tea <- data.frame(tea, agef)
+keep_columns <- c("Tea", "agef", "sex", "spirituality", "sophisticated", "relaxing", "how", "How", "Tea")
+tea_time <- select(tea, one_of(keep_columns))
+summary(tea_time)
+```
+
+Most of the participants questioned were between 15 and 30 years old. The major part was not drinking tea for spiritual reasons but rather finding it sophisticated. Mainly they were drinking tea made with a tea bag and without any added milk or lemon. The most famous tea seems to be Earl Grey.
+
+####Multiple Correspondence Analysis
+Now we want to find out wether or not these variables have anything in common with each other. The MCA examines the links between the variables based on the variance of the observations. 
+```{r MCA}
+
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+plot(mca, invisible=c("ind"), habillage = "quali")
+```
+
+The first two dimensions retain 20.12% of the variance of the data. In the graph we can see that most of the categories are located around the center of the graph showing no strong relation to either one of the dimensions. Only the category "other"" (who neither drink with lemon, nor milk) and the age group 50-75 have a positive correlation with the second dimension.   
+The MCA factor map groups the categories together that have a strong relationship and behave similar. It is difficult to draw conclusions about the relationships from our map as they are quite closely clotted together. Drinking green tea and not to finding it relaxing seem to be related and also related to the group aged 46-50. Whereas 15-30 year old rather drink the tea with lemon and because of spiritual reasons. 
+
+
+
+
+
+
+

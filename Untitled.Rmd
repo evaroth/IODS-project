@@ -1,0 +1,6 @@
+#RStudio Exercise 5 - Dimensionality reduction techniques
+
+
+```{r read csv}
+read.csv("/Users/eva-mariaroth/Documents/GitHub/IODS-project/human.csv")
+```
